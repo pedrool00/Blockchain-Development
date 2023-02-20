@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<!-- Smart contract demo, Things to do: 
+       1) Conectivity with metaMask and the smart contract.
+       2) Display balance of wallet being used. 
+       3) Functions to do transacions and conversion of the token to other currencies. 
+-->
+
+<html>
+
+<!-- Scripts for Metamask connectivity-->
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script src="https://unpkg.com/moralis/dist/moralis.js"></script>
+    <style>
+        header{
+            color: #b8c5ed;
+        }
+        
+        header img{
+            float: left;
+            display: inline-block;
+        }
+        
+        header h0{
+            font-size: 40px; 
+            color: #003f7f;
+            display: inline-block;
+            position: relative;
+            padding: 20px 20px 0 0;
+            display: inline-block;
+        }
+    </style>
+        <header>
+            <img src="https://bitbucket.org/cs3398-s22-klingons/smart_contract/raw/83fccf8ec8f5368445674de8ee7bea7b40976b30/Research/KlingonTokenLogo.png" height="105px" width="105px"></a>
+            <h0><span> Klingons Smart Contract</span></h0>
+
+    <!-- Buttons for login and logout and call to js-->
+    <p style="text-align: right;"> <button class="btn btn-primary btn-lg" id='loginMetamask' >Login with Metamask</button>
+    <button class="btn btn-secondary btn-sm" id='logOutMetamask' >Logout </button></p>
+    <script type = "text/javascript" src="metamask.js"></script>
+
+        </div></header>
+<head>
+
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <!--Scripts for bootstrap library for layout purpose. -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!--Scripts for Terminal library, meaning library to create a terminal like window -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://unpkg.com/jquery.terminal/js/jquery.terminal.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/jquery.terminal/css/jquery.terminal.min.css"/>
+
+</head>
+
+<body>
+    <h1 style="text-align: center;">Smart Contract Demo</h1>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <br>
+
+    <!-- Connecting smart contract from blockchain to website-->
+    <h3 style="text-align: center;">Current Balance($): </h3>
+    <h3 style="text-align: center;"id = 'balance'></h3>
+    <p>&nbsp;</p>
+
+    <p style="text-align: center;"> Enter amount to withdraw or deposit </p>
+    <p style="text-align: center;"><input type = "text" id = "amount">
+    <p style="text-align: center;"> 
+    <button class="btn btn-primary btn-sm" id='deposit'>Deposit</button>
+    <button class="btn btn-primary btn-sm" id = 'withdraw'>Withdraw</button></p>
+    
+    <script>
+        var contract;
+        $(document).ready(function(){
+            web3 = new Web3(web3.currentProvider);
+            var address = "0x6210876010b8b4CD427Da3E5EA1B7e27d091B06a";
+            var abi = [
+	{
+		"inputs": [
+			{
+				"internalType": "int256",
+				"name": "amount",
+				"type": "int256"
+			}
+		],
+		"name": "deposit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "int256",
+				"name": "amount",
+				"type": "int256"
+			}
+		],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getBalance",
+		"outputs": [
+			{
+				"internalType": "int256",
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+            contract = new web3.eth.Contract(abi, address);
+
+            contract.methods.getBalance().call().then(function(bal) {
+                $('#balance').html(bal);
+            })
+        })
+
+        $('#deposit').click(function() {
+            var amountWithdraw = 0;
+            amountWithdraw = parseInt($('#amount').val());
+            web3.eth.getAccounts().then(function(accounts) {
+                var account = accounts[0];
+                return contract.methods.deposit(amountWithdraw).send({from: account});
+            }).then(function(dataReturned){
+                console.log(dataReturned);
+            }).catch(function(dataReturned){
+                console.log(dataReturned);
+            })
+        })
+
+        $('#withdraw').click(function() {
+            var amountWithdraw = 0;
+            amountWithdraw = parseInt($('#amount').val());
+            web3.eth.getAccounts().then(function(accounts) {
+                var account = accounts[0];
+                return contract.methods.withdraw(amountWithdraw).send({from: account});
+            }).then(function(dataReturned){
+                console.log(dataReturned);
+            }).catch(function(dataReturned){
+                console.log(dataReturned);
+            })
+        })
+        
+
+
+
+    </script>
+    <br /><br />
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+
+ 
+    <script>
+    $('body').terminal({
+    hello: function(what) {
+        this.echo('Hello, ' + what +
+                  '. Wellcome to this terminal.');
+      }
+      }, {
+    greetings: 'Test Layout for Smart Contract Layout'
+        });
+            </script>
+
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+
+    
+ 
+</body>
+
+</html>
